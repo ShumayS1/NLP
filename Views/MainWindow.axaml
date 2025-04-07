@@ -2,8 +2,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:DIPLOMKA.ViewModels"
         xmlns:model="using:DIPLOMKA.Models"
+        xmlns:global="clr-namespace:"
         x:Class="DIPLOMKA.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel">
+        x:DataType="global:MainWindowViewModel">
     
     <Design.DataContext>
         <vm:MainWindowViewModel />
@@ -22,7 +23,7 @@
         <ListBox ItemsSource="{Binding Employees}" 
                  Width="500">
             <ListBox.ItemTemplate>
-                <DataTemplate x:DataType="model:EmployeeData">
+                <DataTemplate x:DataType="global:EmployeeData">
                     <StackPanel Margin="5">
                         <TextBlock Text="{Binding Name}" 
                                    FontWeight="Bold" />
@@ -32,5 +33,22 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+        <!-- Добавляем кнопку загрузки файлов и TextBlock для информации -->
+        <StackPanel Margin="20" Spacing="10">
+            <Button Content="Загрузить файлы (.txt)" Command="{Binding LoadFilesCommand}"/>
+            <TextBlock Text="{Binding LoadedFilesCount}" Foreground="Gray"/>
+    
+            <TextBox Text="{Binding InputText}" Watermark="Или введите текст вручную..."
+                     AcceptsReturn="True" Height="150"/>
+        </StackPanel>
+        <ComboBox SelectedIndex="{Binding TeamSizeIndex}" 
+                  HorizontalAlignment="Left"
+                  Width="100">
+            <ComboBoxItem>2 человека</ComboBoxItem>
+            <ComboBoxItem>4 человека</ComboBoxItem>
+            <ComboBoxItem>6 человека</ComboBoxItem>
+            <ComboBoxItem>8 человека</ComboBoxItem>
+        </ComboBox>
     </StackPanel>
+    
 </Window>

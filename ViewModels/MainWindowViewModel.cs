@@ -1,28 +1,37 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Controls;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using ReactiveUI;
+using System.Reactive;
 
 public class MainWindowViewModel : ReactiveObject
 {
-    private string _inputText;
-    public string InputText
+    // Загрузка файлов
+    public ReactiveCommand<Unit, Unit> LoadFilesCommand { get; }
+    public string LoadedFilesCount => $"Загружено файлов: {Employees.Count}";
+    
+    private async void LoadFiles()
     {
-        get => _inputText;
-        set => this.RaiseAndSetIfChanged(ref _inputText, value);
-    }
-
-    public ObservableCollection<EmployeeData> Employees { get; } = new();
-
-    public void Analyze()
-    {
-        var service = new NLPService();
-        var result = service.AnalyzeText(InputText);
-
-        Employees.Add(new EmployeeData
+        var dialog = new OpenFileDialog
         {
-            Name = "Candidate",
-            ResumeText = InputText,
-            CommunicationStyle = result.CommunicationStyle,
-            PersonalityType = result.PersonalityType
-        });
+            AllowMultiple = true,
+            Filters = { new FileDialogFilter { Name = "Text Files", Extensions = { "txt" } } }
+        };
+        
+        var files = await dialog.ShowAsync(new Window());
+        if (files != null)
+        {
+            foreach (var file in files)
+            {
+                var content = await File.ReadAllTextAsync(file);
+                Employees.Add(new EmployeeData
+                {
+                    Name = Path.GetFileNameWithoutExtension(file),
+                    ResumeText = content
+                });
+            }
+            this.RaisePropertyChanged(nameof(LoadedFilesCount));
+        }
     }
 }
