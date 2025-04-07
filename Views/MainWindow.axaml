@@ -1,0 +1,36 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DIPLOMKA.ViewModels"
+        xmlns:model="using:DIPLOMKA.Models"
+        x:Class="DIPLOMKA.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel">
+    
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <StackPanel Margin="20">
+        <TextBox Text="{Binding InputText}" 
+                 Watermark="Введите текст резюме..."
+                 AcceptsReturn="True" 
+                 Height="150" />
+                
+        <Button Content="Анализировать" 
+                Command="{Binding Analyze}" 
+                Margin="0,10" />
+        
+        <ListBox ItemsSource="{Binding Employees}" 
+                 Width="500">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="model:EmployeeData">
+                    <StackPanel Margin="5">
+                        <TextBlock Text="{Binding Name}" 
+                                   FontWeight="Bold" />
+                        <TextBlock Text="{Binding CommunicationStyle}" />
+                        <TextBlock Text="{Binding PersonalityType}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </StackPanel>
+</Window>
