@@ -1,6 +1,0 @@
-<Styles xmlns="https://github.com/avaloniaui">
-    <Style Selector="ProgressBar.compatibility">
-        <Setter Property="Height" Value="25"/>
-        <Setter Property="Margin" Value="0 15"/>
-    </Style>
-</Styles>

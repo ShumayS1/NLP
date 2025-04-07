@@ -1,86 +1,53 @@
-﻿using Avalonia.Controls;
-using DIPLOMKA.Models;
-using DIPLOMKA.Services;
+﻿using Avalonia.Media.Imaging;
 using ReactiveUI;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Reactive;
-using System.Threading.Tasks;
-using DIPLOMKA.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Reactive.Linq;
 
-namespace DIPLOMKA.ViewModels;
 
-public class MainWindowViewModel : ReactiveObject
+// Путь к вашим сервисам (например, MachineLearningService, NLPService и т.д.)
+
+namespace DIPLOMKA.ViewModels
 {
-    // Поля
-    private string _inputText = string.Empty;
-    private TeamAnalysisResult _analysisResult = new();
-    private int _teamSizeIndex;
-    private readonly NLPService _nlpService = new();
-    private readonly TeamAnalyzerService _teamAnalyzer = new();
-    private readonly FileDialogService _fileDialog = new();
-
-    // Коллекция сотрудников (исправление CS0103)
-    public ObservableCollection<EmployeeData> Employees { get; } = new();
-
-    // Свойства
-    public string InputText
+    public class MainWindowViewModel : ReactiveObject
     {
-        get => _inputText;
-        set => this.RaiseAndSetIfChanged(ref _inputText, value);
-    }
-
-    public int TeamSizeIndex
-    {
-        get => _teamSizeIndex;
-        set => this.RaiseAndSetIfChanged(ref _teamSizeIndex, value);
-    }
-
-    public int TeamSize => TeamSizeIndex + 2; // 2-8 человек
-
-    public TeamAnalysisResult AnalysisResult
-    {
-        get => _analysisResult;
-        set => this.RaiseAndSetIfChanged(ref _analysisResult, value);
-    }
-
-    // Команды (исправление CS8618)
-    public ReactiveCommand<Unit, Unit> LoadFilesCommand { get; }
-    public ReactiveCommand<Unit, Unit> AnalyzeCommand { get; }
-
-    public string LoadedFilesCount => $"Загружено файлов: {Employees.Count}";
-
-    public MainWindowViewModel()
-    {
-        // Инициализация команд (исправление CS8618)
-        LoadFilesCommand = ReactiveCommand.CreateFromTask(LoadFilesAsync);
-        AnalyzeCommand = ReactiveCommand.Create(AnalyzeTeam);
-    }
-
-    private async Task LoadFilesAsync()
-    {
-        var files = await _fileDialog.OpenFilesAsync(new Window());
-        if (files != null)
+        // Свойства для привязки к элементам UI
+        private string _portfolioFileInfo;
+        public string PortfolioFileInfo
         {
-            foreach (var file in files)
-            {
-                var content = await File.ReadAllTextAsync(file);
-                Employees.Add(new EmployeeData
-                {
-                    Name = Path.GetFileNameWithoutExtension(file),
-                    ResumeText = content
-                });
-            }
-            this.RaisePropertyChanged(nameof(LoadedFilesCount));
+            get => _portfolioFileInfo;
+            set => this.RaiseAndSetIfChanged(ref _portfolioFileInfo, value);
         }
-    }
 
-    private void AnalyzeTeam()
-    {
-        if (Employees.Count < 2) return;
+        private string _taskThoughtsFileInfo;
+        public string TaskThoughtsFileInfo
+        {
+            get => _taskThoughtsFileInfo;
+            set => this.RaiseAndSetIfChanged(ref _taskThoughtsFileInfo, value);
+        }
 
-        var selectedTeam = Employees.Take(TeamSize).ToList();
-        AnalysisResult = _teamAnalyzer.Analyze(selectedTeam); // Исправлено на _teamAnalyzer.Analyze
+        private string _analysisResult;
+        public string AnalysisResult
+        {
+            get => _analysisResult;
+            set => this.RaiseAndSetIfChanged(ref _analysisResult, value);
+        }
+
+        // Логика для загрузки файлов
+        public void OnUploadPortfolio(string filePath)
+        {
+            PortfolioFileInfo = $"Загружено Портфолио: {filePath}";
+        }
+
+        public void OnUploadTaskThoughts(string filePath)
+        {
+            TaskThoughtsFileInfo = $"Загружено Мысли о Задании: {filePath}";
+        }
+
+        public void OnAnalyze()
+        {
+            // Ваш анализ данных (пока пример)
+            AnalysisResult = "Результаты анализа: Коллектив будет успешен, сильные стороны..."; 
+        }
     }
 }
