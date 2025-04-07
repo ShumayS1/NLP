@@ -1,32 +1,12 @@
-using Microsoft.ML;
-using Microsoft.ML.Data;
+using System.Collections.Generic;  // Для List<>
+using System.Threading.Tasks;     // Для Task<>
+using DIPLOMKA.Models;     
+namespace DIPLOMKA.Services;
 
 public class NLPService
 {
-    private readonly MLContext _mlContext = new();
-
-    public NLPAnalysisResult AnalyzeText(string text)
+    public async Task AnalyzeTextAsync(string text)
     {
-        // 1. Анализ тональности (пример с ML.NET)
-        var sentiment = AnalyzeSentiment(text);
-
-        // 2. Определение стиля общения
-        var communicationStyle = text.Length > 100 ? "Formal" : "Casual";
-
-        // 3. Упрощённое предсказание MBTI
-        var personalityType = sentiment > 0.5 ? "EXTJ" : "INFP";
-
-        return new NLPAnalysisResult
-        {
-            CommunicationStyle = communicationStyle,
-            PersonalityType = personalityType,
-            SentimentScore = sentiment
-        };
-    }
-
-    private float AnalyzeSentiment(string text)
-    {
-        // Заглушка: в реальности используйте обученную модель
-        return text.Contains("great") ? 0.9f : 0.2f;
+        // Логика для анализа текста с использованием NLP
     }
 }

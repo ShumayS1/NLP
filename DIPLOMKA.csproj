@@ -27,4 +27,13 @@
         <PackageReference Include="Microsoft.ML.TorchSharp" Version="0.22.2" />
         <PackageReference Include="ReactiveUI" Version="20.2.45" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Profiles\" />
+      <Folder Include="DAta\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="NewFile1.csproj" />
+    </ItemGroup>
 </Project>
