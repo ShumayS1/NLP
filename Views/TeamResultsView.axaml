@@ -1,0 +1,4 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:vm="using:DIPLOMKA.ViewModels">
+    <!-- Вёрстка для отображения результатов -->
+</UserControl>

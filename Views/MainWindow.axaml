@@ -49,6 +49,36 @@
             <ComboBoxItem>6 человека</ComboBoxItem>
             <ComboBoxItem>8 человека</ComboBoxItem>
         </ComboBox>
+        <!-- График совместимости -->
+        <ProgressBar Value="{Binding AnalysisResult.CompatibilityScore}" 
+                     Maximum="100"
+                     Height="20"
+                     Margin="0,20">
+            <ProgressBar.Foreground>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="Red" Offset="0"/>
+                    <GradientStop Color="Yellow" Offset="0.5"/>
+                    <GradientStop Color="Green" Offset="1"/>
+                </LinearGradientBrush>
+            </ProgressBar.Foreground>
+        </ProgressBar>
+
+        <!-- Плюсы/минусы -->
+        <ItemsControl ItemsSource="{Binding AnalysisResult.Strengths}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" Foreground="Green"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <ItemsControl ItemsSource="{Binding AnalysisResult.Weaknesses}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" Foreground="Red"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </StackPanel>
     
 </Window>

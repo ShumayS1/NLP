@@ -1,5 +1,8 @@
+using DIPLOMKA.Models; // Добавляем эту директиву
 using Microsoft.ML;
 using Microsoft.ML.Data;
+
+namespace DIPLOMKA.Services;
 
 public class NLPService
 {
@@ -7,26 +10,27 @@ public class NLPService
 
     public NLPAnalysisResult AnalyzeText(string text)
     {
-        // 1. Анализ тональности (пример с ML.NET)
-        var sentiment = AnalyzeSentiment(text);
-
-        // 2. Определение стиля общения
-        var communicationStyle = text.Length > 100 ? "Formal" : "Casual";
-
-        // 3. Упрощённое предсказание MBTI
-        var personalityType = sentiment > 0.5 ? "EXTJ" : "INFP";
-
         return new NLPAnalysisResult
         {
-            CommunicationStyle = communicationStyle,
-            PersonalityType = personalityType,
-            SentimentScore = sentiment
+            CommunicationStyle = AnalyzeCommunicationStyle(text),
+            PersonalityType = PredictPersonalityType(text),
+            SentimentScore = AnalyzeSentiment(text)
         };
+    }
+
+    private string AnalyzeCommunicationStyle(string text)
+    {
+        return text.Length > 100 ? "Formal" : "Casual";
+    }
+
+    private string PredictPersonalityType(string text)
+    {
+        return text.Contains("team") ? "EXTJ" : "INFP";
     }
 
     private float AnalyzeSentiment(string text)
     {
-        // Заглушка: в реальности используйте обученную модель
-        return text.Contains("great") ? 0.9f : 0.2f;
+        // Заглушка для примера
+        return text.Contains("success") ? 0.9f : 0.2f;
     }
 }
