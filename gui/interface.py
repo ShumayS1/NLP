@@ -1,66 +1,83 @@
 
-from PyQt5.QtWidgets import QWidget, QPushButton, QTextEdit, QVBoxLayout, QLabel, QComboBox, QFileDialog, QHBoxLayout
-from gui.plot import plot_radar_chart
-from utils.file_loader import read_file
+from PyQt5.QtWidgets import (
+    QWidget, QPushButton, QTextEdit, QVBoxLayout, QLabel,
+    QHBoxLayout, QFileDialog, QApplication, QTabWidget, QGridLayout, QSizePolicy
+)
 from nlp.analyzer import analyze_multiple
+from utils.file_loader import read_file
 
 class CompatibilityApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Анализ совместимости сотрудников")
-        self.inputs = []
-        self.labels = []
+        self.setGeometry(100, 100, 1000, 800)
 
-        self.num_select = QComboBox()
-        self.num_select.addItems([str(i) for i in range(2, 5)])
-        self.num_select.currentIndexChanged.connect(self.update_fields)
+        self.text_edits = []
+        self.file_buttons = []
 
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(QLabel("Выберите количество сотрудников:"))
-        self.layout.addWidget(self.num_select)
+        main_layout = QVBoxLayout()
+        form_layout = QGridLayout()
 
-        self.fields_layout = QVBoxLayout()
-        self.layout.addLayout(self.fields_layout)
-
-        self.analyze_btn = QPushButton("Анализировать")
-        self.analyze_btn.clicked.connect(self.analyze)
-        self.layout.addWidget(self.analyze_btn)
-
-        self.result_label = QLabel("Результаты появятся здесь...")
-        self.layout.addWidget(self.result_label)
-
-        self.setLayout(self.layout)
-        self.update_fields()
-
-    def update_fields(self):
-        # Очистка предыдущих полей
-        for i in reversed(range(self.fields_layout.count())):
-            self.fields_layout.itemAt(i).widget().setParent(None)
-        self.inputs = []
-        self.labels = []
-
-        num = int(self.num_select.currentText())
-        for i in range(num):
+        for i in range(4):
             label = QLabel(f"Сотрудник {i+1}:")
-            text_input = QTextEdit()
-            load_btn = QPushButton(f"Загрузить файл {i+1}")
-            load_btn.clicked.connect(lambda _, idx=i, input_box=text_input: self.load_file(idx, input_box))
+            text_edit = QTextEdit()
+            text_edit.setPlaceholderText(f"Введите текст сотрудника {i+1}...")
+            file_button = QPushButton("📁 Загрузить")
+            file_button.clicked.connect(lambda checked, idx=i: self.load_file(idx))
 
-            self.fields_layout.addWidget(label)
-            self.fields_layout.addWidget(text_input)
-            self.fields_layout.addWidget(load_btn)
+            self.text_edits.append(text_edit)
+            self.file_buttons.append(file_button)
 
-            self.inputs.append(text_input)
-            self.labels.append(label)
+            form_layout.addWidget(label, i, 0)
+            form_layout.addWidget(text_edit, i, 1)
+            form_layout.addWidget(file_button, i, 2)
 
-    def load_file(self, index, input_box):
-        path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Документы (*.txt *.pdf *.docx)")
-        if path:
-            content = read_file(path)
-            input_box.setText(content)
+        main_layout.addLayout(form_layout)
+
+        self.analyze_button = QPushButton("🚀 Анализировать")
+        self.analyze_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.analyze_button.clicked.connect(self.analyze)
+        main_layout.addWidget(self.analyze_button)
+
+        self.results_tabs = QTabWidget()
+        main_layout.addWidget(self.results_tabs)
+
+        self.setLayout(main_layout)
+
+    def load_file(self, index):
+        filename, _ = QFileDialog.getOpenFileName(self, "Открыть файл", "", "Text Files (*.txt *.pdf *.docx)")
+        if filename:
+            text = read_file(filename)
+            self.text_edits[index].setText(text)
 
     def analyze(self):
-        texts = [inp.toPlainText() for inp in self.inputs]
+        self.results_tabs.clear()
+        texts = [te.toPlainText().strip() for te in self.text_edits if te.toPlainText().strip()]
+        if len(texts) < 2:
+            self.results_tabs.addTab(QLabel("Введите хотя бы двух сотрудников."), "Ошибка")
+            return
+
         result_text, compatibility_scores = analyze_multiple(texts)
-        self.result_label.setText(result_text)
-        plot_radar_chart(compatibility_scores, [f"Сотрудник {i+1}" for i in range(len(texts))])
+
+        # Разбивка по сотрудникам
+        lines = result_text.strip().split("\n\n")
+        for i, block in enumerate(lines):
+            label = QLabel(block.replace("\n", "<br>"))
+            label.setWordWrap(True)
+            self.results_tabs.addTab(label, f"Сотрудник {i+1}")
+
+        # Совместимость
+        compatibility_text = ""
+        for pair, score in compatibility_scores.items():
+            compatibility_text += f"🤝 {pair} — <b>{score:.1f}%</b><br>"
+
+        compatibility_label = QLabel(compatibility_text)
+        compatibility_label.setWordWrap(True)
+        self.results_tabs.addTab(compatibility_label, "Совместимость")
+
+if __name__ == "__main__":
+    import sys
+    app = QApplication(sys.argv)
+    window = CompatibilityApp()
+    window.show()
+    sys.exit(app.exec())

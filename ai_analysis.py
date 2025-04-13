@@ -1,22 +1,18 @@
-import joblib
-import numpy as np
+import pickle
 
-# Загрузка модели и бинализатора
-model = joblib.load("final_working_employee_model.pkl")
-mlb = joblib.load("final_working_employee_labels.pkl")
-
+# Обязательно: Бинарный режим чтения!
 def analyze_with_ai(text):
-    """
-    Принимает текст сотрудника и возвращает список плюсов и минусов.
-    """
-    prediction = model.predict([text])
-    prediction = np.array(prediction)  # гарантируем, что prediction — numpy-массив
-    traits = mlb.inverse_transform(prediction)[0]
+    plus_keywords = [
+        "ответственный", "инициативный", "организованный", "аналитичный", "коммуникабельный",
+        "умеет слушать", "работает в команде", "внимательный", "стрессоустойчивый", "пунктуальный"
+    ]
+    minus_keywords = [
+        "нервничаю", "откладываю", "иногда теряюсь", "конфликтую", "медлю",
+        "злюсь", "устаю быстро", "переживаю", "неуверенность", "раздражаюсь"
+    ]
 
-    plus_words = ["Ответственность", "Командная работа", "Организованность", "Коммуникабельность"]
-    minus_words = ["Прокрастинация", "Избегает конфликтов"]
-
-    pluses = [t for t in traits if t in plus_words]
-    minuses = [t for t in traits if t in minus_words]
-
+    text_lower = text.lower()
+    pluses = [kw for kw in plus_keywords if kw in text_lower]
+    minuses = [kw for kw in minus_keywords if kw in text_lower]
     return pluses, minuses
+
