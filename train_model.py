@@ -1,43 +1,45 @@
-
+import pandas as pd
 import pickle
-from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.multioutput import MultiOutputClassifier
-from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.pipeline import Pipeline
 
-# Пример обучающих данных (можно заменить загрузкой из файла в будущем)
-X = [
-    "Я ответственный и всегда довожу дело до конца",
-    "Мне сложно работать в условиях стресса",
-    "Организованный, люблю порядок в задачах",
-    "Иногда откладываю важное на потом",
-    "Коммуникабельный, легко вхожу в команду",
-    "Быстро устаю, если работа однообразная",
-]
-y = [
-    ["ответственный"],
-    ["минус_стресс"],
-    ["организованный"],
-    ["минус_прокрастинация"],
-    ["коммуникабельный"],
-    ["минус_усталость"]
-]
+MODEL_FILE = "final_working_employee_model.pkl"
+LABELS_FILE = "final_working_employee_labels.pkl"
+TRAIN_DATA_FILE = "train_data.csv"
 
-mlb = MultiLabelBinarizer()
-y_bin = mlb.fit_transform(y)
 
-model = Pipeline([
-    ('tfidf', TfidfVectorizer()),
-    ('clf', MultiOutputClassifier(LogisticRegression(max_iter=1000)))
-])
+def load_data():
+    df = pd.read_csv(TRAIN_DATA_FILE)
+    df["labels"] = df["labels"].apply(eval)  # Преобразуем строку обратно в список
+    return df
 
-model.fit(X, y_bin)
 
-# Сохраняем модель и мультибинаризатор
-with open("final_working_employee_model.pkl", "wb") as f:
-    pickle.dump(model, f)
-with open("final_working_employee_labels.pkl", "wb") as f:
-    pickle.dump(mlb, f)
+def train_model():
+    df = load_data()
+    X = df["text"]
+    y = df["labels"]
 
-print("✅ Модель обучена и сохранена!")
+    mlb = MultiLabelBinarizer()
+    y_bin = mlb.fit_transform(y)
+
+    pipeline = Pipeline([
+        ("tfidf", TfidfVectorizer(max_features=1000)),
+        ("clf", MultiOutputClassifier(LogisticRegression(max_iter=1000)))
+    ])
+
+    pipeline.fit(X, y_bin)
+
+    with open(MODEL_FILE, "wb") as f:
+        pickle.dump(pipeline, f)
+
+    with open(LABELS_FILE, "wb") as f:
+        pickle.dump(mlb, f)
+
+    print("✅ Модель и бинализатор сохранены!")
+
+
+if __name__ == "__main__":
+    train_model()

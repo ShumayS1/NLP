@@ -1,18 +1,24 @@
 import pickle
+import numpy as np
 
-# Обязательно: Бинарный режим чтения!
+MODEL_FILE = "final_working_employee_model.pkl"
+LABELS_FILE = "final_working_employee_labels.pkl"
+
+
+with open(MODEL_FILE, "rb") as f:
+    model = pickle.load(f)
+
+with open(LABELS_FILE, "rb") as f:
+    mlb = pickle.load(f)
+
+
 def analyze_with_ai(text):
-    plus_keywords = [
-        "ответственный", "инициативный", "организованный", "аналитичный", "коммуникабельный",
-        "умеет слушать", "работает в команде", "внимательный", "стрессоустойчивый", "пунктуальный"
-    ]
-    minus_keywords = [
-        "нервничаю", "откладываю", "иногда теряюсь", "конфликтую", "медлю",
-        "злюсь", "устаю быстро", "переживаю", "неуверенность", "раздражаюсь"
-    ]
+    prediction = model.predict([text])
+    predicted_labels = mlb.inverse_transform(prediction)[0] if np.sum(prediction) > 0 else []
 
-    text_lower = text.lower()
-    pluses = [kw for kw in plus_keywords if kw in text_lower]
-    minuses = [kw for kw in minus_keywords if kw in text_lower]
-    return pluses, minuses
+    pluses = [label for label in predicted_labels if label.startswith("plus:")]
+    minuses = [label for label in predicted_labels if label.startswith("minus:")]
+    sentiment = sum(1 for label in predicted_labels if label.startswith("plus:")) - \
+                sum(1 for label in predicted_labels if label.startswith("minus:"))
 
+    return pluses, minuses, sentiment
