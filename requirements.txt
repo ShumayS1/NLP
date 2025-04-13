@@ -1,0 +1,10 @@
+
+nltk
+spacy
+transformers
+scikit-learn
+pandas
+numpy
+PyQt5
+PyPDF2
+python-docx
