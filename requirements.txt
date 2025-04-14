@@ -8,3 +8,4 @@ numpy
 PyQt5
 PyPDF2
 python-docx
+reportlab
